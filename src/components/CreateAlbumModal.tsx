@@ -1,0 +1,235 @@
+"use client";
+
+import { useState } from "react";
+import { X, FileText, Plus, Upload, Image as ImageIcon } from "lucide-react";
+import { createAlbum, CreateAlbumData } from "@/lib/albums";
+import { uploadPhoto, validatePhotoFile } from "@/lib/photos";
+
+interface CreateAlbumModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+export default function CreateAlbumModal({ isOpen, onClose, onSuccess }: CreateAlbumModalProps) {
+  const [title, setTitle] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  if (!isOpen) return null;
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles: File[] = [];
+    const errors: string[] = [];
+
+    files.forEach(file => {
+      const validation = validatePhotoFile(file);
+      if (validation.isValid) {
+        validFiles.push(file);
+      } else {
+        errors.push(`${file.name}: ${validation.error}`);
+      }
+    });
+
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+    }
+
+    setSelectedFiles(prev => [...prev, ...validFiles].slice(0, 10)); // 最大10枚
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+
+    setLoading(true);
+    setUploadProgress(0);
+
+    try {
+      // アルバムを作成（unlock_dateは自動設定される）
+      const albumData: CreateAlbumData = {
+        title: title.trim(),
+      };
+
+      // アルバムを作成
+      const album = await createAlbum(albumData);
+      
+      // 写真をアップロード
+      if (selectedFiles.length > 0) {
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          await uploadPhoto({
+            albumId: album.id,
+            file: file,
+          });
+          setUploadProgress(((i + 1) / selectedFiles.length) * 100);
+        }
+      }
+      
+      // フォームをリセット
+      setTitle("");
+      setSelectedFiles([]);
+      setUploadProgress(0);
+      onClose();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Failed to create album:", error);
+      alert(error instanceof Error ? error.message : "アルバムの作成に失敗しました");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (loading) return;
+    setTitle("");
+    setSelectedFiles([]);
+    setUploadProgress(0);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-gradient-to-br from-[#1A1A1A] to-[#232946] rounded-2xl border border-[#D4AF37]/20 w-full max-w-lg shadow-2xl">
+        {/* ヘッダー */}
+        <div className="flex items-center justify-between p-6 border-b border-[#D4AF37]/20">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
+              <Plus className="text-[#D4AF37]" size={18} />
+            </div>
+            <h2 className="text-xl font-bold text-white">新しいアルバムを作成</h2>
+          </div>
+          <button
+            onClick={handleClose}
+            disabled={loading}
+            className="text-[#F5F5DC] hover:text-white transition-colors disabled:opacity-50"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* フォーム */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* タイトル */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-[#F5F5DC] mb-2">
+              <FileText size={16} className="text-[#D4AF37]" />
+              アルバムタイトル
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="例：今日の思い出"
+              className="w-full px-4 py-3 bg-[#0B192F] border border-[#D4AF37]/20 rounded-lg text-white placeholder-[#F5F5DC]/50 focus:border-[#D4AF37] focus:outline-none transition-colors"
+              required
+              disabled={loading}
+              maxLength={50}
+            />
+            <p className="text-xs text-[#F5F5DC]/70 mt-1">{title.length}/50文字</p>
+          </div>
+
+          {/* 画像選択 */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-[#F5F5DC] mb-2">
+              <ImageIcon size={16} className="text-[#D4AF37]" />
+              写真を選択 (最大10枚)
+            </label>
+            <div className="border-2 border-dashed border-[#D4AF37]/30 rounded-lg p-6 text-center hover:border-[#D4AF37]/50 transition-colors">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileSelect}
+                disabled={loading}
+                className="hidden"
+                id="photo-upload"
+              />
+              <label htmlFor="photo-upload" className="cursor-pointer">
+                <Upload className="w-8 h-8 text-[#D4AF37] mx-auto mb-2" />
+                <p className="text-[#F5F5DC]">写真を選択またはドラッグ&ドロップ</p>
+                <p className="text-xs text-[#F5F5DC]/70 mt-1">JPEG, PNG, WebP (最大10MB)</p>
+              </label>
+            </div>
+          </div>
+
+          {/* 選択された画像のプレビュー */}
+          {selectedFiles.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-[#F5F5DC] mb-3">
+                選択された写真 ({selectedFiles.length}枚)
+              </p>
+              <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-20 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      disabled={loading}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors disabled:opacity-50"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 進行状況 */}
+          {loading && uploadProgress > 0 && (
+            <div>
+              <div className="flex justify-between text-sm text-[#F5F5DC] mb-1">
+                <span>アップロード中...</span>
+                <span>{Math.round(uploadProgress)}%</span>
+              </div>
+              <div className="w-full bg-[#0B192F] rounded-full h-2">
+                <div
+                  className="bg-[#D4AF37] h-2 rounded-full transition-all"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ボタン */}
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={loading}
+              className="flex-1 px-4 py-3 border border-[#D4AF37]/20 text-[#F5F5DC] rounded-lg hover:bg-[#D4AF37]/10 transition-colors disabled:opacity-50"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !title.trim()}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-[#D4AF37] to-[#F5F5DC] text-[#0B192F] font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-[#0B192F]"></div>
+              ) : (
+                <>
+                  <Plus size={18} />
+                  作成
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
