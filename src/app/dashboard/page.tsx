@@ -234,7 +234,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-green-400">{stats.unlocked}</h3>
-                  <p className="text-[#F5F5DC]">公開中のアルバム</p>
+                  <p className="text-[#F5F5DC]">開封済のアルバム</p>
                 </div>
               </div>
             </div>
