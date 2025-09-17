@@ -126,7 +126,7 @@ export default function Home() {
       >
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0B192F] via-[#1A1A1A] to-[#232946] opacity-90" />
         <Image
-          src="/hero-night.jpg"
+          src="/head.png"
           alt="夜空と宝箱"
           fill
           className="object-cover z-0 opacity-40"
@@ -134,7 +134,7 @@ export default function Home() {
         />
         <div className="relative z-10 flex flex-col items-center">
           <h1 
-            className="font-serif text-6xl md:text-8xl font-bold text-white drop-shadow-lg mb-8 tracking-tight"
+            className="font-serif text-5xl md:text-8xl font-bold text-white drop-shadow-lg mb-8 tracking-tight"
             data-aos="fade-up"
             data-aos-delay="500"
             data-aos-duration="1800"
@@ -165,7 +165,7 @@ export default function Home() {
             data-aos-delay="1200"
             data-aos-duration="1000"
           >
-            思い出を封印する
+            思い出を閉じ込める
           </button>
         </div>
       </section>
@@ -173,14 +173,14 @@ export default function Home() {
       {/* 体験の流れ */}
       <section className="max-w-7xl mx-auto py-32 px-4 space-y-40">
         <Step
-          image="/step1-seal.png"
-          title="封印する"
-          desc="大切な写真を未来のあなたへ。あなたがその箱を開くまで、大切に保管します。"
+          image="/huin.png"
+          title="閉じ込める"
+          desc="作成されたアルバムをあなたが開くまで、大切に保管します。"
         />
         <Step
-          image="/step3-open.png"
+          image="/tokyo.png"
           title="開く"
-          desc="指定した記念日の24時間だけ、思い出の扉が開きます。特別な一日を、もう一度。"
+          desc="開封してから24時間だけ、アルバムが閲覧できます。"
         />
       </section>
 
@@ -188,34 +188,37 @@ export default function Home() {
       <section className="bg-[#181A20] py-32" data-aos="fade-up" data-aos-duration="1500">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-24 items-center px-4">
           <div className="flex-1" data-aos="slide-right" data-aos-delay="200">
-            <h2 className="font-serif text-4xl text-[#D4AF37] mb-8">普段は、静かな眠りのなかで。</h2>
+            <h2 className="font-serif text-4xl text-[#D4AF37] mb-8">アルバムを閉じ込めます</h2>
             <Image
-              src="/lock-demo.png"
+              src="/screen.png"
               alt="ロック画面"
               width={520}
               height={340}
               className="rounded-2xl shadow-2xl"
             />
-            <p className="text-[#F5F5DC] text-2xl mt-6">次の解禁日まで、あと <span className="text-[#D4AF37] font-bold">182日</span></p>
+            <p className="text-[#F5F5DC] text-2xl mt-6">アルバムを開いたら24時間のタイマーが作動します</p>
           </div>
           <div className="flex-1" data-aos="slide-left" data-aos-delay="400">
-            <h2 className="font-serif text-4xl text-[#D4AF37] mb-8">その日、思い出は鮮やかに甦る。</h2>
+            <h2 className="font-serif text-4xl text-[#D4AF37] mb-8">思い出が１日のみ甦ります。</h2>
             <Image
-              src="/unlock-demo.png"
+              src="/gal.png"
               alt="ギャラリー画面"
               width={520}
               height={340}
               className="rounded-2xl shadow-2xl"
             />
-            <p className="text-[#F5F5DC] text-2xl mt-6">写真がポラロイドのように並びます</p>
+            <p className="text-[#F5F5DC] text-2xl mt-6">24時間限定のあなたのアルバムを楽しむことができます。</p>
           </div>
         </div>
       </section>
 
       {/* 最後のアクション */}
       <section className="py-32 text-center" data-aos="fade-up" data-aos-duration="1500">
-        <h2 className="font-serif text-5xl text-[#D4AF37] mb-12" data-aos="fade-up" data-aos-delay="200">
+        <h2 className="font-serif text-4xl text-[#D4AF37] mb-12" data-aos="fade-up" data-aos-delay="200">
           あなたの思い出を封印
+        </h2>
+        <h2 className="font-serif text-4xl text-[#D4AF37] mb-12" data-aos="fade-up" data-aos-delay="200">
+          そして特別な日に24時間だけ開封
         </h2>
         <button
           onClick={() => openAuthModal("signup")}
@@ -237,4 +240,3 @@ export default function Home() {
     </main>
   );
 }
-
