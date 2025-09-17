@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth";
 import { getAlbum, checkAlbumAccess, Album } from "@/lib/albums";
 import { getPhotoUrl } from "@/lib/photos";
 import { ArrowLeft, Clock, Lock, Unlock, Download, Calendar } from "lucide-react";
+import { InfinitePhotoCarousel } from "@/components/InfinitePhotoCarousel";
 
 export default function AlbumDetailPage() {
   const [user, setUser] = useState<any>(null);
@@ -81,10 +81,6 @@ export default function AlbumDetailPage() {
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((ms % (1000 * 60)) / 1000);
     return `${hours}時間${minutes}分${seconds}秒`;
-  };
-
-  const getImageUrl = (photo: any) => {
-    return photoUrls[photo.id] || '/placeholder-image.jpg';
   };
 
   if (loading) {
@@ -183,37 +179,13 @@ export default function AlbumDetailPage() {
           </div>
         </div>
 
-        {/* 写真グリッド */}
-        {album.photos && album.photos.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {album.photos.map((photo) => (
-              <div key={photo.id} className="group bg-[#1A1A1A] rounded-2xl overflow-hidden hover:scale-105 transition-transform">
-                <div className="relative aspect-square">
-                  <Image
-                    src={getImageUrl(photo)}
-                    alt={photo.caption || album.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                {photo.caption && (
-                  <div className="p-4">
-                    <p className="text-[#F5F5DC]/80 text-sm">{photo.caption}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-[#D4AF37]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="text-[#D4AF37]" size={40} />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">写真がありません</h3>
-            <p className="text-[#F5F5DC]/70">このアルバムにはまだ写真がアップロードされていません。</p>
-          </div>
-        )}
+        {/* 写真カルーセル */}
+        <InfinitePhotoCarousel
+          photos={album.photos || []}
+          photoUrls={photoUrls}
+          albumTitle={album.title}
+          className="mt-8"
+        />
       </div>
     </div>
   );

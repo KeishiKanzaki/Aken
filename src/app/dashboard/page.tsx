@@ -5,15 +5,19 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getCurrentUser, signOut } from "@/lib/auth";
 import { getUserAlbums, getAlbumStats, Album, checkAlbumAccess, unsealAlbum, deleteAlbum } from "@/lib/albums";
-import { Plus, Calendar, Clock, Lock, Unlock, ArrowLeft, Eye, ImageIcon, Trash2, MoreVertical } from "lucide-react";
+import { Plus, Calendar, Clock, Lock, Unlock, ArrowLeft, Eye, ImageIcon, Trash2, MoreVertical, Upload, Edit3 } from "lucide-react";
 import CreateAlbumModal from "@/components/CreateAlbumModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import AddPhotoModal from "@/components/AddPhotoModal";
+import EditCommentModal from "@/components/EditCommentModal";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addPhotoModalOpen, setAddPhotoModalOpen] = useState(false);
+  const [editCommentModalOpen, setEditCommentModalOpen] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -82,6 +86,16 @@ export default function Dashboard() {
     setDeleteModalOpen(true);
   };
 
+  const handleAddPhotoClick = (album: Album) => {
+    setSelectedAlbum(album);
+    setAddPhotoModalOpen(true);
+  };
+
+  const handleEditCommentClick = (album: Album) => {
+    setSelectedAlbum(album);
+    setEditCommentModalOpen(true);
+  };
+
   const handleDeleteConfirm = async () => {
     if (!selectedAlbum) return;
 
@@ -103,6 +117,26 @@ export default function Dashboard() {
 
   const handleDeleteCancel = () => {
     setDeleteModalOpen(false);
+    setSelectedAlbum(null);
+  };
+
+  const handleAddPhotoSuccess = () => {
+    // アルバム一覧を再取得
+    loadData();
+  };
+
+  const handleAddPhotoClose = () => {
+    setAddPhotoModalOpen(false);
+    setSelectedAlbum(null);
+  };
+
+  const handleEditCommentSuccess = () => {
+    // アルバム一覧を再取得
+    loadData();
+  };
+
+  const handleEditCommentClose = () => {
+    setEditCommentModalOpen(false);
     setSelectedAlbum(null);
   };
 
@@ -148,8 +182,11 @@ export default function Dashboard() {
           <h1 className="font-serif text-5xl md:text-7xl font-bold text-white mb-6">
             アルバム
           </h1>
-          <p className="text-xl md:text-2xl text-[#F5F5DC] mb-12 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-[#F5F5DC] mb-3 max-w-3xl mx-auto">
             大切な思い出を保管し、特別な日に再び開きましょう。
+          </p>
+          <p className="text-xl md:text-2xl text-[#F5F5DC] mb-12 max-w-3xl mx-auto">
+            しかし、開封後閲覧できるのは24時間だけです。
           </p>
 
           {/* 新規作成ボタン */}
@@ -248,6 +285,15 @@ export default function Dashboard() {
                           {album.title}
                         </h3>
                         <div className="flex items-center gap-2">
+                          {accessInfo.status === 'sealed' && (
+                            <button
+                              onClick={() => handleEditCommentClick(album)}
+                              className="w-8 h-8 bg-[#D4AF37]/20 hover:bg-[#D4AF37]/30 rounded-full flex items-center justify-center text-[#D4AF37] hover:text-[#F5F5DC] transition-colors"
+                              title="コメントを編集"
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                          )}
                           <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                             accessInfo.status === 'sealed' 
                               ? 'bg-blue-500/20 text-blue-400' 
@@ -264,13 +310,22 @@ export default function Dashboard() {
                           </div>
                           <button
                             onClick={() => handleDeleteClick(album)}
-                            className="w-8 h-8 bg-red-500/20 hover:bg-red-500/30 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 transition-colors opacity-0 group-hover:opacity-100"
+                            className="w-8 h-8 bg-red-500/20 hover:bg-red-500/30 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 transition-colors"
                             title="アルバムを削除"
                           >
                             <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
+
+                      {/* コメント表示 */}
+                      {album.comment && (
+                        <div className="mb-3 p-3 bg-[#0B192F]/50 rounded-lg border border-[#D4AF37]/10">
+                          <p className="text-sm text-[#F5F5DC]/80 italic">
+                            "{album.comment}"
+                          </p>
+                        </div>
+                      )}
 
                       <div className="flex items-center gap-4 text-xs text-[#F5F5DC]/60">
                         {accessInfo.status !== 'sealed' && (
@@ -289,16 +344,25 @@ export default function Dashboard() {
                     {/* カードフッター */}
                     <div className="p-4">
                       {accessInfo.status === 'sealed' && (
-                        <div className="text-center">
-                          <button 
-                            onClick={() => handleUnsealAlbum(album.id)}
-                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F5F5DC] text-[#0B192F] py-3 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                          >
-                            <Unlock size={16} />
-                            アルバムを開ける
-                          </button>
-                          <p className="text-xs text-[#F5F5DC]/60 mt-2">
-                            開けると24時間限定で閲覧できます
+                        <div className="text-center space-y-3">
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => handleAddPhotoClick(album)}
+                              className="flex-1 bg-[#0B192F] border border-[#D4AF37]/40 text-[#D4AF37] py-2 rounded-lg font-medium hover:bg-[#D4AF37]/10 transition-colors flex items-center justify-center gap-2"
+                            >
+                              <Upload size={16} />
+                              写真追加
+                            </button>
+                            <button 
+                              onClick={() => handleUnsealAlbum(album.id)}
+                              className="flex-1 bg-gradient-to-r from-[#D4AF37] to-[#F5F5DC] text-[#0B192F] py-2 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                            >
+                              <Unlock size={16} />
+                              開封
+                            </button>
+                          </div>
+                          <p className="text-xs text-[#F5F5DC]/60">
+                            開封すると24時間限定で閲覧できます
                           </p>
                         </div>
                       )}
@@ -361,6 +425,25 @@ export default function Dashboard() {
         onConfirm={handleDeleteConfirm}
         albumTitle={selectedAlbum?.title || ''}
         isDeleting={isDeleting}
+      />
+
+      {/* 写真追加モーダル */}
+      <AddPhotoModal
+        isOpen={addPhotoModalOpen}
+        onClose={handleAddPhotoClose}
+        albumId={selectedAlbum?.id || ''}
+        albumTitle={selectedAlbum?.title || ''}
+        onSuccess={handleAddPhotoSuccess}
+      />
+
+      {/* コメント編集モーダル */}
+      <EditCommentModal
+        isOpen={editCommentModalOpen}
+        onClose={handleEditCommentClose}
+        albumId={selectedAlbum?.id || ''}
+        albumTitle={selectedAlbum?.title || ''}
+        currentComment={selectedAlbum?.comment || null}
+        onSuccess={handleEditCommentSuccess}
       />
     </main>
   );

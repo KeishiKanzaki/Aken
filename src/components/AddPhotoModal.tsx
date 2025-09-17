@@ -1,19 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { X, FileText, Plus, Upload, Image as ImageIcon } from "lucide-react";
-import { createAlbum, CreateAlbumData } from "@/lib/albums";
+import { X, Upload, Image as ImageIcon } from "lucide-react";
 import { uploadPhoto, validatePhotoFile } from "@/lib/photos";
 
-interface CreateAlbumModalProps {
+interface AddPhotoModalProps {
   isOpen: boolean;
   onClose: () => void;
+  albumId: string;
+  albumTitle: string;
   onSuccess?: () => void;
 }
 
-export default function CreateAlbumModal({ isOpen, onClose, onSuccess }: CreateAlbumModalProps) {
-  const [title, setTitle] = useState("");
-  const [comment, setComment] = useState("");
+export default function AddPhotoModal({ 
+  isOpen, 
+  onClose, 
+  albumId, 
+  albumTitle, 
+  onSuccess 
+}: AddPhotoModalProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -47,43 +52,30 @@ export default function CreateAlbumModal({ isOpen, onClose, onSuccess }: CreateA
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (selectedFiles.length === 0) return;
 
     setLoading(true);
     setUploadProgress(0);
 
     try {
-      // アルバムを作成（unlock_dateは自動設定される）
-      const albumData: CreateAlbumData = {
-        title: title.trim(),
-        comment: comment.trim() || undefined,
-      };
-
-      // アルバムを作成
-      const album = await createAlbum(albumData);
-      
       // 写真をアップロード
-      if (selectedFiles.length > 0) {
-        for (let i = 0; i < selectedFiles.length; i++) {
-          const file = selectedFiles[i];
-          await uploadPhoto({
-            albumId: album.id,
-            file: file,
-          });
-          setUploadProgress(((i + 1) / selectedFiles.length) * 100);
-        }
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        await uploadPhoto({
+          albumId: albumId,
+          file: file,
+        });
+        setUploadProgress(((i + 1) / selectedFiles.length) * 100);
       }
       
       // フォームをリセット
-      setTitle("");
-      setComment("");
       setSelectedFiles([]);
       setUploadProgress(0);
       onClose();
       onSuccess?.();
     } catch (error) {
-      console.error("Failed to create album:", error);
-      alert(error instanceof Error ? error.message : "アルバムの作成に失敗しました");
+      console.error("Failed to upload photos:", error);
+      alert(error instanceof Error ? error.message : "写真のアップロードに失敗しました");
     } finally {
       setLoading(false);
     }
@@ -91,8 +83,6 @@ export default function CreateAlbumModal({ isOpen, onClose, onSuccess }: CreateA
 
   const handleClose = () => {
     if (loading) return;
-    setTitle("");
-    setComment("");
     setSelectedFiles([]);
     setUploadProgress(0);
     onClose();
@@ -105,9 +95,12 @@ export default function CreateAlbumModal({ isOpen, onClose, onSuccess }: CreateA
         <div className="flex items-center justify-between p-6 border-b border-[#D4AF37]/20">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
-              <Plus className="text-[#D4AF37]" size={18} />
+              <ImageIcon className="text-[#D4AF37]" size={18} />
             </div>
-            <h2 className="text-xl font-bold text-white">新しいアルバムを作成</h2>
+            <div>
+              <h2 className="text-xl font-bold text-white">写真を追加</h2>
+              <p className="text-sm text-[#F5F5DC]/70">{albumTitle}</p>
+            </div>
           </div>
           <button
             onClick={handleClose}
@@ -120,43 +113,6 @@ export default function CreateAlbumModal({ isOpen, onClose, onSuccess }: CreateA
 
         {/* フォーム */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* タイトル */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#F5F5DC] mb-2">
-              <FileText size={16} className="text-[#D4AF37]" />
-              アルバムタイトル
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="例：今日の思い出"
-              className="w-full px-4 py-3 bg-[#0B192F] border border-[#D4AF37]/20 rounded-lg text-white placeholder-[#F5F5DC]/50 focus:border-[#D4AF37] focus:outline-none transition-colors"
-              required
-              disabled={loading}
-              maxLength={50}
-            />
-            <p className="text-xs text-[#F5F5DC]/70 mt-1">{title.length}/50文字</p>
-          </div>
-
-          {/* コメント */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#F5F5DC] mb-2">
-              <FileText size={16} className="text-[#D4AF37]" />
-              コメント（任意）
-            </label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="このアルバムについて何か書いてみましょう..."
-              className="w-full px-4 py-3 bg-[#0B192F] border border-[#D4AF37]/20 rounded-lg text-white placeholder-[#F5F5DC]/50 focus:border-[#D4AF37] focus:outline-none transition-colors resize-none"
-              disabled={loading}
-              maxLength={500}
-              rows={3}
-            />
-            <p className="text-xs text-[#F5F5DC]/70 mt-1">{comment.length}/500文字</p>
-          </div>
-
           {/* 画像選択 */}
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-[#F5F5DC] mb-2">
@@ -237,15 +193,15 @@ export default function CreateAlbumModal({ isOpen, onClose, onSuccess }: CreateA
             </button>
             <button
               type="submit"
-              disabled={loading || !title.trim()}
+              disabled={loading || selectedFiles.length === 0}
               className="flex-1 px-4 py-3 bg-gradient-to-r from-[#D4AF37] to-[#F5F5DC] text-[#0B192F] font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-[#0B192F]"></div>
               ) : (
                 <>
-                  <Plus size={18} />
-                  作成
+                  <Upload size={18} />
+                  アップロード
                 </>
               )}
             </button>

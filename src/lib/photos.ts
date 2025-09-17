@@ -15,6 +15,26 @@ export async function uploadPhoto(data: UploadPhotoData): Promise<Photo> {
     throw new Error("認証が必要です");
   }
 
+  // アルバムの存在確認と所有者チェック、および未開封チェック
+  const { data: album, error: albumError } = await supabase
+    .from('albums')
+    .select('user_id, unlock_date')
+    .eq('id', data.albumId)
+    .single();
+
+  if (albumError || !album) {
+    throw new Error("アルバムが見つかりません");
+  }
+
+  if (album.user_id !== user.id) {
+    throw new Error("このアルバムにアクセスする権限がありません");
+  }
+
+  // 未開封のアルバムにのみ写真を追加可能
+  if (album.unlock_date !== null) {
+    throw new Error("開封済みのアルバムには写真を追加できません");
+  }
+
   // ファイル名を生成（ユーザーID/アルバムID/ランダムID_元のファイル名）
   const fileExtension = data.file.name.split('.').pop();
   const fileName = `${user.id}/${data.albumId}/${crypto.randomUUID()}.${fileExtension}`;

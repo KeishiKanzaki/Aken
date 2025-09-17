@@ -4,6 +4,7 @@ export interface Album {
   id: string;
   user_id: string;
   title: string;
+  comment?: string | null; // ユーザーが追加できる任意のコメント
   unlock_date: string | null; // null = 未開封, 値あり = 開封済み
   created_at: string;
   updated_at: string;
@@ -22,6 +23,7 @@ export interface Photo {
 
 export interface CreateAlbumData {
   title: string;
+  comment?: string;
 }
 
 // アルバムを作成
@@ -32,7 +34,7 @@ export async function createAlbum(data: CreateAlbumData): Promise<Album> {
     throw new Error("認証が必要です");
   }
 
-  console.log('Creating album for user:', user.id, 'with title:', data.title);
+  console.log('Creating album for user:', user.id, 'with title:', data.title, 'with comment:', data.comment);
 
   // unlock_dateはnullに設定（未開封状態）
   const { data: album, error } = await supabase
@@ -40,6 +42,7 @@ export async function createAlbum(data: CreateAlbumData): Promise<Album> {
     .insert({
       user_id: user.id,
       title: data.title,
+      comment: data.comment || null,
       unlock_date: null, // 未開封状態
     })
     .select()
@@ -142,6 +145,49 @@ export async function updateAlbum(albumId: string, data: Partial<CreateAlbumData
   }
 
   return album;
+}
+
+// アルバムのコメントを更新（未開封時のみ）
+export async function updateAlbumComment(albumId: string, comment: string): Promise<Album> {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error("認証が必要です");
+  }
+
+  // アルバムの存在確認と所有者チェック、および未開封チェック
+  const { data: album, error: albumError } = await supabase
+    .from('albums')
+    .select('user_id, unlock_date')
+    .eq('id', albumId)
+    .single();
+
+  if (albumError || !album) {
+    throw new Error("アルバムが見つかりません");
+  }
+
+  if (album.user_id !== user.id) {
+    throw new Error("このアルバムを編集する権限がありません");
+  }
+
+  // 未開封のアルバムにのみコメント編集を許可
+  if (album.unlock_date !== null) {
+    throw new Error("開封済みのアルバムのコメントは編集できません");
+  }
+
+  const { data: updatedAlbum, error } = await supabase
+    .from('albums')
+    .update({ comment: comment })
+    .eq('id', albumId)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`コメントの更新に失敗しました: ${error.message}`);
+  }
+
+  return updatedAlbum;
 }
 
 // アルバムを削除
@@ -252,6 +298,7 @@ export function checkAlbumAccess(album: Album): {
   const unlockDate = new Date(album.unlock_date);
   const unlockEnd = new Date(unlockDate.getTime() + 24 * 60 * 60 * 1000); // 24時間後
 
+  // アクセス可能かどうかを判定 ※24時間のみアクセスおよび閲覧が可能になる部分
   if (now >= unlockDate && now < unlockEnd) {
     return {
       canAccess: true,

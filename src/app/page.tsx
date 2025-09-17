@@ -100,7 +100,7 @@ export default function Home() {
       <nav className="absolute top-0 left-0 right-0 z-40 p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="font-serif text-2xl text-[#D4AF37] font-bold">
-            時の宝箱
+            24Album
           </div>
           <div className="flex gap-4">
             <button
@@ -143,12 +143,20 @@ export default function Home() {
             アルバム
           </h1>
           <p 
+            className="text-2xl md:text-3xl text-[#F5F5DC] mb-5 max-w-3xl mx-auto"
+            data-aos="fade-up"
+            data-aos-delay="800"
+            data-aos-duration="1600"
+          >
+            あなたの大切な写真アルバムを封印し、
+          </p>
+          <p 
             className="text-2xl md:text-3xl text-[#F5F5DC] mb-10 max-w-3xl mx-auto"
             data-aos="fade-up"
             data-aos-delay="800"
             data-aos-duration="1600"
           >
-            あなたの大切な一日を、未来へ届けるタイムカプセル・アルバム。
+            特別な日に24時間だけ開ける体験を。
           </p>
           <button
             onClick={() => openAuthModal("signup")}
@@ -167,13 +175,7 @@ export default function Home() {
         <Step
           image="/step1-seal.png"
           title="封印する"
-          desc="大切な写真やメッセージを、未来のあなたへ。アプリが一年間、大切に保管します。"
-        />
-        <Step
-          image="/step2-wait.png"
-          title="待つ"
-          desc="その日が来るまで、中身を見ることはできません。年に一度の再会をお楽しみに。"
-          reverse
+          desc="大切な写真を未来のあなたへ。あなたがその箱を開くまで、大切に保管します。"
         />
         <Step
           image="/step3-open.png"
@@ -213,7 +215,7 @@ export default function Home() {
       {/* 最後のアクション */}
       <section className="py-32 text-center" data-aos="fade-up" data-aos-duration="1500">
         <h2 className="font-serif text-5xl text-[#D4AF37] mb-12" data-aos="fade-up" data-aos-delay="200">
-          あなたの宝箱を、作りませんか？
+          あなたの思い出を封印
         </h2>
         <button
           onClick={() => openAuthModal("signup")}
