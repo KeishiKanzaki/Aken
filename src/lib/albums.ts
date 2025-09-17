@@ -296,7 +296,7 @@ export function checkAlbumAccess(album: Album): {
 
   const now = new Date();
   const unlockDate = new Date(album.unlock_date);
-  const unlockEnd = new Date(unlockDate.getTime() + 24 * 60 * 60 * 1000); // 24時間後
+  const unlockEnd = new Date(unlockDate.getTime() + 1 * 60 * 1000); // 1分後
 
   // アクセス可能かどうかを判定 ※24時間のみアクセスおよび閲覧が可能になる部分
   if (now >= unlockDate && now < unlockEnd) {
@@ -348,7 +348,7 @@ export async function getAlbumStats(): Promise<{
       }
 
       const unlockDate = new Date(album.unlock_date);
-      const unlockEnd = new Date(unlockDate.getTime() + 24 * 60 * 60 * 1000);
+      const unlockEnd = new Date(unlockDate.getTime() + 1 * 60 * 1000);
 
       if (now >= unlockDate && now < unlockEnd) {
         acc.unlocked++;
