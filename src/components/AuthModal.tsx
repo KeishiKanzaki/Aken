@@ -121,114 +121,92 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={handleClose} />
       <div 
-        className={`relative bg-gradient-to-b ${config.bgGradient} rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border-2 transition-all duration-300`}
+        className={`relative bg-gradient-to-b ${config.bgGradient} rounded-3xl max-w-md w-full mx-4 shadow-2xl border-2 transition-all duration-300 flex flex-col max-h-[90vh]`}
         style={{ borderColor: `${config.borderColor}40` }}
       >
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 text-[#F5F5DC] hover:text-[#D4AF37] transition-colors z-10"
-        >
-          <X size={24} />
-        </button>
+        {/* ヘッダー (固定) */}
+        <div className="p-8 pb-0 flex-shrink-0">
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 text-[#F5F5DC] hover:text-[#D4AF37] transition-colors z-10"
+          >
+            <X size={24} />
+          </button>
 
-        {/* ヘッダーセクション */}
-        <div className="text-center mb-8 relative">
-          {/* アイコン背景 */}
-          <div 
-            className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: `${config.accentColor}20`, border: `2px solid ${config.accentColor}` }}
-          >
-            <IconComponent size={32} style={{ color: config.accentColor }} />
+          {/* ヘッダーセクション */}
+          <div className="text-center relative">
+            {/* アイコン背景 */}
+            <div 
+              className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center shadow-lg"
+              style={{ backgroundColor: `${config.accentColor}20`, border: `2px solid ${config.accentColor}` }}
+            >
+              <IconComponent size={32} style={{ color: config.accentColor }} />
+            </div>
+            
+            {/* タイトル */}
+            <h2 
+              className="font-serif text-3xl font-bold mb-2"
+              style={{ color: config.accentColor }}
+            >
+              {config.title}
+            </h2>
+            
+            {/* サブタイトル */}
+            <p className="text-[#F5F5DC] text-lg">
+              {config.subtitle}
+            </p>
+            
+            {/* 装飾ライン */}
+            <div 
+              className="w-24 h-1 mx-auto mt-4 rounded-full"
+              style={{ backgroundColor: config.accentColor }}
+            />
           </div>
-          
-          {/* タイトル */}
-          <h2 
-            className="font-serif text-3xl font-bold mb-2"
-            style={{ color: config.accentColor }}
-          >
-            {config.title}
-          </h2>
-          
-          {/* サブタイトル */}
-          <p className="text-[#F5F5DC] text-lg">
-            {config.subtitle}
-          </p>
-          
-          {/* 装飾ライン */}
-          <div 
-            className="w-24 h-1 mx-auto mt-4 rounded-full"
-            style={{ backgroundColor: config.accentColor }}
-          />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* メールアドレス */}
-          <div>
-            <label htmlFor="email" className="block text-[#F5F5DC] text-sm font-medium mb-2">
-              メールアドレス
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail size={20} style={{ color: config.accentColor }} />
-              </div>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A] rounded-xl text-[#F5F5DC] placeholder-gray-400 focus:outline-none transition-all duration-200 border-2"
-                style={{ 
-                  borderColor: `${config.accentColor}30`
-                }}
-                placeholder="your@email.com"
-                onFocus={(e) => e.target.style.borderColor = config.accentColor}
-                onBlur={(e) => e.target.style.borderColor = `${config.accentColor}30`}
-              />
-            </div>
-          </div>
-
-          {/* パスワード */}
-          <div>
-            <label htmlFor="password" className="block text-[#F5F5DC] text-sm font-medium mb-2">
-              パスワード
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock size={20} style={{ color: config.accentColor }} />
-              </div>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A] rounded-xl text-[#F5F5DC] placeholder-gray-400 focus:outline-none transition-all duration-200 border-2"
-                style={{ 
-                  borderColor: `${config.accentColor}30`
-                }}
-                placeholder="••••••••"
-                onFocus={(e) => e.target.style.borderColor = config.accentColor}
-                onBlur={(e) => e.target.style.borderColor = `${config.accentColor}30`}
-              />
-            </div>
-          </div>
-
-          {/* パスワード確認（新規登録時のみ） */}
-          {mode === "signup" && (
+        {/* コンテンツエリア (スクロール可能) */}
+        <div className="flex-1 overflow-y-auto px-8">
+          <form onSubmit={handleSubmit} className="space-y-6 mt-8">
+            {/* メールアドレス */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-[#F5F5DC] text-sm font-medium mb-2">
-                パスワード確認
+              <label htmlFor="email" className="block text-[#F5F5DC] text-sm font-medium mb-2">
+                メールアドレス
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Key size={20} style={{ color: config.accentColor }} />
+                  <Mail size={20} style={{ color: config.accentColor }} />
+                </div>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A] rounded-xl text-[#F5F5DC] placeholder-gray-400 focus:outline-none transition-all duration-200 border-2"
+                  style={{ 
+                    borderColor: `${config.accentColor}30`
+                  }}
+                  placeholder="your@email.com"
+                  onFocus={(e) => e.target.style.borderColor = config.accentColor}
+                  onBlur={(e) => e.target.style.borderColor = `${config.accentColor}30`}
+                />
+              </div>
+            </div>
+
+            {/* パスワード */}
+            <div>
+              <label htmlFor="password" className="block text-[#F5F5DC] text-sm font-medium mb-2">
+                パスワード
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock size={20} style={{ color: config.accentColor }} />
                 </div>
                 <input
                   type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A] rounded-xl text-[#F5F5DC] placeholder-gray-400 focus:outline-none transition-all duration-200 border-2"
                   style={{ 
@@ -240,31 +218,63 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
                 />
               </div>
             </div>
-          )}
 
-          {error && (
-            <div className="bg-red-900/50 border border-red-500 rounded-xl p-4 text-red-200 text-sm flex items-center gap-3 backdrop-blur-sm">
-              <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">!</span>
+            {/* パスワード確認（新規登録時のみ） */}
+            {mode === "signup" && (
+              <div>
+                <label htmlFor="confirmPassword" className="block text-[#F5F5DC] text-sm font-medium mb-2">
+                  パスワード確認
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Key size={20} style={{ color: config.accentColor }} />
+                  </div>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-3 bg-[#1A1A1A] rounded-xl text-[#F5F5DC] placeholder-gray-400 focus:outline-none transition-all duration-200 border-2"
+                    style={{ 
+                      borderColor: `${config.accentColor}30`
+                    }}
+                    placeholder="••••••••"
+                    onFocus={(e) => e.target.style.borderColor = config.accentColor}
+                    onBlur={(e) => e.target.style.borderColor = `${config.accentColor}30`}
+                  />
+                </div>
               </div>
-              <span>{error}</span>
-            </div>
-          )}
+            )}
 
-          {message && (
-            <div className="bg-green-900/50 border border-green-500 rounded-xl p-4 text-green-200 text-sm flex items-center gap-3 backdrop-blur-sm">
-              <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">✓</span>
+            {error && (
+              <div className="bg-red-900/50 border border-red-500 rounded-xl p-4 text-red-200 text-sm flex items-center gap-3 backdrop-blur-sm">
+                <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-bold">!</span>
+                </div>
+                <span>{error}</span>
               </div>
-              <span>{message}</span>
-            </div>
-          )}
+            )}
 
+            {message && (
+              <div className="bg-green-900/50 border border-green-500 rounded-xl p-4 text-green-200 text-sm flex items-center gap-3 backdrop-blur-sm">
+                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-bold">✓</span>
+                </div>
+                <span>{message}</span>
+              </div>
+            )}
+          </form>
+        </div>
+
+        {/* フッター (固定) */}
+        <div className="p-8 pt-4 flex-shrink-0">
           {/* 送信ボタン */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:hover:scale-100"
+            onClick={handleSubmit}
+            className="w-full py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:hover:scale-100 mb-6"
             style={{
               background: mode === "login" 
                 ? `linear-gradient(135deg, ${config.accentColor}, ${config.accentColor}CC)`
@@ -284,25 +294,25 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
               </div>
             )}
           </button>
-        </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-[#F5F5DC] text-sm mb-3">
-            {mode === "login" ? "アカウントをお持ちでない方" : "既にアカウントをお持ちの方"}
-          </p>
-          <button
-            onClick={switchMode}
-            className="px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-300 hover:scale-105"
-            style={{
-              color: config.accentColor,
-              background: mode === "login" 
-                ? `linear-gradient(135deg, ${config.accentColor}20, ${config.accentColor}10)`
-                : `linear-gradient(135deg, ${config.accentColor}20, #F5F5DC30)`,
-              border: `1px solid ${config.accentColor}30`
-            }}
-          >
-            {mode === "login" ? "新規登録はこちら" : "ログインはこちら"}
-          </button>
+          <div className="text-center">
+            <p className="text-[#F5F5DC] text-sm mb-3">
+              {mode === "login" ? "アカウントをお持ちでない方" : "既にアカウントをお持ちの方"}
+            </p>
+            <button
+              onClick={switchMode}
+              className="px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-300 hover:scale-105"
+              style={{
+                color: config.accentColor,
+                background: mode === "login" 
+                  ? `linear-gradient(135deg, ${config.accentColor}20, ${config.accentColor}10)`
+                  : `linear-gradient(135deg, ${config.accentColor}20, #F5F5DC30)`,
+                border: `1px solid ${config.accentColor}30`
+              }}
+            >
+              {mode === "login" ? "新規登録はこちら" : "ログインはこちら"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
