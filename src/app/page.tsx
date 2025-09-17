@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import AuthModal from "@/components/AuthModal";
 import { getCurrentUser, onAuthStateChange, signOut } from "@/lib/auth";
 
@@ -36,7 +35,7 @@ function Step({ image, title, desc, reverse }: StepProps) {
 export default function Home() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ email?: string; id: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -66,13 +65,14 @@ export default function Home() {
   }, [router]);
 
   useEffect(() => {
-    const AOS = require("aos");
-    AOS.init({ 
-      once: true, 
-      duration: 1200, 
-      easing: "ease-out-cubic",
-      offset: 120,
-      delay: 100
+    import("aos").then((AOS) => {
+      AOS.init({ 
+        once: true, 
+        duration: 1200, 
+        easing: "ease-out-cubic",
+        offset: 120,
+        delay: 100
+      });
     });
   }, []);
 

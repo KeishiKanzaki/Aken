@@ -2,17 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { getCurrentUser, signOut } from "@/lib/auth";
 import { getUserAlbums, getAlbumStats, Album, checkAlbumAccess, unsealAlbum, deleteAlbum } from "@/lib/albums";
-import { Plus, Calendar, Clock, Lock, Unlock, ArrowLeft, Eye, ImageIcon, Trash2, MoreVertical, Upload, Edit3 } from "lucide-react";
+import { Plus, Calendar, Lock, Unlock, Eye, ImageIcon, Trash2, Upload, Edit3 } from "lucide-react";
 import CreateAlbumModal from "@/components/CreateAlbumModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import AddPhotoModal from "@/components/AddPhotoModal";
 import EditCommentModal from "@/components/EditCommentModal";
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ email?: string; id: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -322,7 +321,7 @@ export default function Dashboard() {
                       {album.comment && (
                         <div className="mb-3 p-3 bg-[#0B192F]/50 rounded-lg border border-[#D4AF37]/10">
                           <p className="text-sm text-[#F5F5DC]/80 italic">
-                            "{album.comment}"
+                            &ldquo;{album.comment}&rdquo;
                           </p>
                         </div>
                       )}

@@ -5,11 +5,11 @@ import { useRouter, useParams } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getAlbum, checkAlbumAccess, Album } from "@/lib/albums";
 import { getPhotoUrl } from "@/lib/photos";
-import { ArrowLeft, Clock, Lock, Unlock, Download, Calendar } from "lucide-react";
+import { ArrowLeft, Clock, Lock, Unlock, Calendar } from "lucide-react";
 import { InfinitePhotoCarousel } from "@/components/InfinitePhotoCarousel";
 
 export default function AlbumDetailPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ email?: string; id: string } | null>(null);
   const [album, setAlbum] = useState<Album | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
