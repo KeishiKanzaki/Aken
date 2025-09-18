@@ -126,7 +126,7 @@ export default function Home() {
       >
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0B192F] via-[#1A1A1A] to-[#232946] opacity-90" />
         <Image
-          src="/head.png"
+          src="/head.jpg"
           alt="夜空と宝箱"
           fill
           className="object-cover z-0 opacity-40"
@@ -173,12 +173,12 @@ export default function Home() {
       {/* 体験の流れ */}
       <section className="max-w-7xl mx-auto py-32 px-4 space-y-40">
         <Step
-          image="/huin.png"
+          image="/huin.jpg"
           title="閉じ込める"
           desc="作成されたアルバムをあなたが開くまで、大切に保管します。"
         />
         <Step
-          image="/tokyo.png"
+          image="/tokyo.jpg"
           title="開く"
           desc="開封してから24時間だけ、アルバムが閲覧できます。"
         />
